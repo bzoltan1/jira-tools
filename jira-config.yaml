@@ -3,3 +3,8 @@ server:
     username: 
     password: 
 category_name:
+
+date:
+    start:
+    stop:
+    delta:
