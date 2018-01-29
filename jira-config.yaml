@@ -1,8 +1,10 @@
 server:
-    address: 
+    address: http://
     username: 
     password: 
-category_name:
+filter:
+    filter_name: projectCategory.name
+    filter_value: 
 
 date:
     start:
