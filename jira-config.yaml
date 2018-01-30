@@ -1,5 +1,15 @@
 server:
     address: 
-    username: 
-    password: 
-category_name:
+    username:
+    password:
+
+filter:
+    filter_name: 
+    filter_value:
+
+date:
+    start:
+    stop:
+    delta:
+
+jql: 
