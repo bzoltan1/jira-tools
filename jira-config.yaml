@@ -1,15 +1,16 @@
 server:
-    address: 
-    username:
-    password:
+    address:
+    username: statuser 
+    password: statuser
 
 filter:
-    filter_name: 
+    filter_name:
     filter_value:
+
 
 date:
     start:
     stop:
     delta:
 
-jql: 
+jql:
