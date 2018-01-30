@@ -94,6 +94,20 @@ filter_name = jira_conf['filter']['filter_name']
 filter_value = jira_conf['filter']['filter_value']
 filter_names = filter_name.split(".")
 
+start = "2017-11-16"
+stop = "2017-11-16"
+delta = 2
+
+start_date = datetime.datetime.strptime('%s' % start, '%Y-%m-%d')
+end_date = datetime.datetime.strptime('%s' % stop, '%Y-%m-%d')
+
+d = start_date
+while d <= end_date:
+    print d.strftime("%Y-%m-%d")
+    d += datetime.timedelta(delta)
+
+
+
 projects = jira.projects()
 for project in projects:
     if hasattr(project, filter_names[0] ):
@@ -115,7 +129,7 @@ for project in projects:
                    break
                 block_num += 1
                 for issue in issues:
-                    print('%s: %s \t %s' % (issue.key, issue.fields.summary, issue.fields.customfield_10094))
+                #    print('%s: %s \t %s' % (issue.key, issue.fields.summary, issue.fields.customfield_10094))
                     if issue.fields.customfield_10094:
                         overall_story_points += float("%s" % issue.fields.customfield_10094)
 
