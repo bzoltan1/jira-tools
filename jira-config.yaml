@@ -1,4 +1,5 @@
 server:
+<<<<<<< HEAD
     address:
     username: statuser 
     password: statuser
@@ -7,10 +8,21 @@ filter:
     filter_name:
     filter_value:
 
+=======
+    address: http://
+    username: 
+    password: 
+filter:
+    filter_name: projectCategory.name
+    filter_value: 
+>>>>>>> 4b867daed622e54771f0acd016736ee8d382974a
 
 date:
     start:
     stop:
     delta:
+<<<<<<< HEAD
 
 jql:
+=======
+>>>>>>> 4b867daed622e54771f0acd016736ee8d382974a
