@@ -8,6 +8,8 @@ from os.path import isfile
 import yaml
 import logging
 import sys
+import datetime
+from datetime import timedelta, date
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -94,43 +96,41 @@ filter_name = jira_conf['filter']['filter_name']
 filter_value = jira_conf['filter']['filter_value']
 filter_names = filter_name.split(".")
 
-start = "2017-11-16"
-stop = "2017-11-16"
-delta = 2
+start = jira_conf['date']['start']
+stop = jira_conf['date']['stop']
+delta = jira_conf['date']['delta']
 
-start_date = datetime.datetime.strptime('%s' % start, '%Y-%m-%d')
-end_date = datetime.datetime.strptime('%s' % stop, '%Y-%m-%d')
-
-d = start_date
-while d <= end_date:
-    print d.strftime("%Y-%m-%d")
-    d += datetime.timedelta(delta)
-
-
+start_date = datetime.datetime.strptime('%s' % start, '%Y/%m/%d')
+end_date = datetime.datetime.strptime('%s' % stop, '%Y/%m/%d')
 
 projects = jira.projects()
-for project in projects:
-    if hasattr(project, filter_names[0] ):
-        project_category = getattr(project, filter_names[0])
-        if len(filter_names) > 1:
-            project_category_value = project_category._session[filter_names[1]]
-        else:
-            project_category_value = getattr(project, filter_names[0])
+date = start_date
+while date <= end_date:
+    overall_story_points=0
+    for project in projects:
+        if hasattr(project, filter_names[0] ):
+            project_category = getattr(project, filter_names[0])
+            if len(filter_names) > 1:
+                project_category_value = project_category._session[filter_names[1]]
+            else:
+                project_category_value = getattr(project, filter_names[0])
 
-        if project_category_value == filter_value:
-            jql = "project = %s AND %s" % (project.key, jira_conf['jql'])
-            block_size = 50
-            block_num = 0
-            while True:
-                start_idx = block_num*block_size
-                issues = jira.search_issues(jql, start_idx, block_size)
-                if len(issues) == 0:
-                    # Retrieve issues until there are no more to come
-                   break
-                block_num += 1
-                for issue in issues:
-                #    print('%s: %s \t %s' % (issue.key, issue.fields.summary, issue.fields.customfield_10094))
-                    if issue.fields.customfield_10094:
-                        overall_story_points += float("%s" % issue.fields.customfield_10094)
+            if project_category_value == filter_value:
+                jql = "project = %s AND %s before (\"%s\")" % (project.key, jira_conf['jql'], date.strftime("%Y/%m/%d"))
+                log.info(jql)
+                block_size = 50
+                block_num = 0
+                while True:
+                    start_idx = block_num*block_size
+                    issues = jira.search_issues(jql, start_idx, block_size)
+                    if len(issues) == 0:
+                        # Retrieve issues until there are no more to come
+                       break
+                    block_num += 1
+                    for issue in issues:
+                        log.info("%s: %s \t %s" % (issue.key, issue.fields.summary, issue.fields.customfield_10094))
+                        if issue.fields.customfield_10094:
+                            overall_story_points += float("%s" % issue.fields.customfield_10094)
+    print("%s\t%d" % (date.strftime("%Y/%m/%d"), overall_story_points))
+    date += datetime.timedelta(delta)
 
-print("Overall story points: %d" % overall_story_points)
