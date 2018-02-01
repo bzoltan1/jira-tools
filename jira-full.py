@@ -27,7 +27,7 @@ set key off auto columnheader
 set yrange [0:*]
 set linetype 1 lc rgb '#183693'
 set terminal png font "/usr/share/fonts/truetype/freefont/FreeSans.ttf" 12 size 1024,768
-set output "gp.png"
+set output "PNG"
 $dataset << EOD
 DATA
 EOD
