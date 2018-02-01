@@ -137,13 +137,12 @@ else:
 
 jira = connect_jira(log, jira_conf['server'])
 
-overall_story_points = 0
+sum = 0
 
 filter_name = jira_conf['filter']['filter_name']
 filter_value = jira_conf['filter']['filter_value']
 filter_names = filter_name.split(".")
 summing = jira_conf['summing']['field']
-
 
 if 'date' in jira_conf:
     start = jira_conf['date']['start']
@@ -163,7 +162,7 @@ projects = jira.projects()
 date = start_date
 data_table=""
 while date <= end_date:
-    overall_story_points=0
+    sum=0
     for project in projects:
         if hasattr(project, filter_names[0] ):
             project_category = getattr(project, filter_names[0])
@@ -185,11 +184,16 @@ while date <= end_date:
                        break
                     block_num += 1
                     for issue in issues:
-                        log.info("%s: %s \t %s" % (issue.key, issue.fields.summary, getattr(issue.fields, summing)))
-                        if hasattr(issue.fields, summing) and (getattr(issue.fields, summing)):
-                            overall_story_points += float("%s" % getattr(issue.fields, summing))
-    data_table+=("%s\t%d\n" % (date.strftime("%Y-%m-%d"), overall_story_points))
-    log.info("%s\t%d\t0" % (date.strftime("%Y-%m-%d"), overall_story_points))
+                        if summing:
+                            log.info("%s: %s \t %s" % (issue.key, issue.fields.summary, getattr(issue.fields, summing)))
+                            if hasattr(issue.fields, summing) and (getattr(issue.fields, summing)):
+                                sum += float("%s" % getattr(issue.fields, summing))
+                        else:
+                            log.info("%s: %s" % (issue.key, issue.fields.summary))
+
+                            sum += 1
+    data_table+=("%s\t%d\n" % (date.strftime("%Y-%m-%d"), sum))
+    log.info("%s\t%d" % (date.strftime("%Y-%m-%d"), sum))
     date += datetime.timedelta(delta)
 plot = re.sub(r"DATA","%s" % data_table, plot)
 gnuplot(plot)
