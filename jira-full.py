@@ -134,6 +134,8 @@ overall_story_points = 0
 filter_name = jira_conf['filter']['filter_name']
 filter_value = jira_conf['filter']['filter_value']
 filter_names = filter_name.split(".")
+summing = jira_conf['summing']['field']
+
 
 if 'date' in jira_conf:
     start = jira_conf['date']['start']
@@ -175,14 +177,12 @@ while date <= end_date:
                        break
                     block_num += 1
                     for issue in issues:
-                        log.info("%s: %s \t %s" % (issue.key, issue.fields.summary, issue.fields.customfield_10094))
-                        if issue.fields.customfield_10094:
-                            overall_story_points += float("%s" % issue.fields.customfield_10094)
+                        log.info("%s: %s \t %s" % (issue.key, issue.fields.summary, getattr(issue.fields, summing)))
+                        if hasattr(issue.fields, summing) and (getattr(issue.fields, summing)):
+                            overall_story_points += float("%s" % getattr(issue.fields, summing))
     data_table+=("%s\t%d\n" % (date.strftime("%Y-%m-%d"), overall_story_points))
     log.info("%s\t%d\t0" % (date.strftime("%Y-%m-%d"), overall_story_points))
     date += datetime.timedelta(delta)
-
 plot = re.sub(r"DATA","%s" % data_table, plot)
-print(plot)
 gnuplot(plot)
 
