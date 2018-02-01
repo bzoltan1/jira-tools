@@ -34,11 +34,6 @@ EOD
 plot $dataset  using 2:xtic(1) with histogram, $dataset using 0:($2):2 with labels offset 1,1 
 """
 
-logging.basicConfig(level=logging.INFO)
-
-# create logger
-log = logging.getLogger(__name__)
-
 def gnuplot(data):
     try:
         gnuplot_process = subprocess.Popen(["gnuplot"],
@@ -93,6 +88,7 @@ def connect_jira(log, server):
 epilog_text = "CREDENTIAL_FILE:\n" + \
               "  In case the tool is used in a scripted mode the JIRA address and credentals can be used form the jira_conf.yaml file\n"
 
+log = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser(description="JIRA helper tool",
                                  epilog=epilog_text,
@@ -124,8 +120,20 @@ parser.add_argument('-c',
                     type = check_valid_yaml_file,
                     default=None, 
                     required=False)
+parser.add_argument('-v',
+                    '--verbose',
+                    dest='verbose',
+                    default=False,
+                    action='store_true')
 
 options = parser.parse_args()
+
+
+if options.verbose:
+    logging.basicConfig(level=logging.INFO)
+else:
+    logging.basicConfig(level=logging.WARNING)
+
 
 jira = connect_jira(log, jira_conf['server'])
 
