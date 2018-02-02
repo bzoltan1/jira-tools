@@ -142,6 +142,7 @@ sum = 0
 filter_name = jira_conf['filter']['filter_name']
 filter_value = jira_conf['filter']['filter_value']
 filter_names = filter_name.split(".")
+filter_title = jira_conf['filter']['filter_title']
 summing = jira_conf['summing']['field']
 
 if 'date' in jira_conf:
@@ -155,7 +156,7 @@ else:
 start_date = datetime.datetime.strptime('%s' % start, '%Y/%m/%d')
 end_date = datetime.datetime.strptime('%s' % stop, '%Y/%m/%d')
 
-plot = re.sub(r"BURNDOWN","%s" % filter_value, plot)
+plot = re.sub(r"BURNDOWN","%s - %s" % (filter_value,filter_title), plot)
 plot = re.sub(r"PNG","%s_%s-%s.png" % (re.sub(" ","_",filter_value), re.sub("/","-",start),re.sub("/","-",stop)), plot)
 
 projects = jira.projects()
