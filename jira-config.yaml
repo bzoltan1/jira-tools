@@ -11,4 +11,6 @@ date:
     delta: 
 summing:
     field:
-jql: 
+jql_commands:
+    -
+    -

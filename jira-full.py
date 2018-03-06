@@ -29,9 +29,10 @@ set linetype 1 lc rgb '#183693'
 set terminal png font "/usr/share/fonts/truetype/freefont/FreeSans.ttf" 12 size 1024,768
 set output "PNG"
 $dataset << EOD
+HEADER
 DATA
 EOD
-plot $dataset  using 2:xtic(1) with histogram, $dataset using 0:($2):2 with labels offset 1,1 
+PLOTLINE
 """
 
 def gnuplot(data):
@@ -139,6 +140,7 @@ jira = connect_jira(log, jira_conf['server'])
 
 sum = 0
 
+jql_commands = jira_conf['jql_commands']
 filter_name = jira_conf['filter']['filter_name']
 filter_value = jira_conf['filter']['filter_value']
 filter_names = filter_name.split(".")
@@ -156,13 +158,23 @@ else:
 start_date = datetime.datetime.strptime('%s' % start, '%Y/%m/%d')
 end_date = datetime.datetime.strptime('%s' % stop, '%Y/%m/%d')
 
-plot = re.sub(r"BURNDOWN","%s - %s" % (filter_value,filter_title), plot)
-plot = re.sub(r"PNG","%s_%s-%s.png" % (re.sub(" ","_",filter_value), re.sub("/","-",start),re.sub("/","-",stop)), plot)
+plot = re.sub(r"BURNDOWN","%s" % filter_title, plot)
+plot = re.sub(r"PNG","%s_%s-%s.png" % (re.sub(" ","_",filter_title), re.sub("/","-",start),re.sub("/","-",stop)), plot)
+
+dataline=[0 for x in range(len(jql_commands))]
+plot = re.sub(r"HEADER","0\t%s" % '\t'.join(str(e) for e in dataline) , plot)
 
 projects = jira.projects()
 date = start_date
 data_table=""
+plotline="plot "
+for idx,commands in enumerate(jql_commands):
+    plotline+=("\\\n\t$dataset  using %d:xtic(1) with histogram, \\\n\t$dataset using 0:($%d):%d with labels offset %d,1" % (idx+2,idx+2,idx+2,idx*5))
+    if (idx != len(jql_commands)-1):
+        plotline+=(",") 
+
 while date <= end_date:
+    dataline=[0 for x in range(len(jql_commands))]
     sum=0
     for project in projects:
         if hasattr(project, filter_names[0] ):
@@ -172,30 +184,34 @@ while date <= end_date:
             else:
                 project_category_value = getattr(project, filter_names[0])
 
-            if project_category_value == filter_value:
-                jql = "project = %s AND %s on (\"%s\")" % (project.key, jira_conf['jql'], date.strftime("%Y/%m/%d"))
-                log.info(jql)
-                block_size = 50
-                block_num = 0
-                while True:
-                    start_idx = block_num*block_size
-                    issues = jira.search_issues(jql, start_idx, block_size)
-                    if len(issues) == 0:
-                        # Retrieve issues until there are no more to come
-                       break
-                    block_num += 1
-                    for issue in issues:
-                        if summing:
-                            log.info("%s: %s \t %s" % (issue.key, issue.fields.summary, getattr(issue.fields, summing)))
-                            if hasattr(issue.fields, summing) and (getattr(issue.fields, summing)):
-                                sum += float("%s" % getattr(issue.fields, summing))
-                        else:
-                            log.info("%s: %s" % (issue.key, issue.fields.summary))
-
-                            sum += 1
-    data_table+=("%s\t%d\n" % (date.strftime("%Y-%m-%d"), sum))
+            if re.search(project_category_value, filter_value):
+                for idx ,jql_command in enumerate(jql_commands):
+                    jql = "project = %s AND %s" % (project.key, jql_command)
+                    jql = re.sub(r"%DATE%","\"%s\"" % (date.strftime("%Y/%m/%d")), jql)
+                    log.info(jql)
+                    block_size = 50
+                    block_num = 0
+                    while True:
+                        start_idx = block_num*block_size
+                        issues = jira.search_issues(jql, start_idx, block_size)
+                        if len(issues) == 0:
+                            # Retrieve issues until there are no more to come
+                            break
+                        block_num += 1
+                        for issue in issues:
+                            if summing:
+                                log.info("%s: %s \t %s" % (issue.key, issue.fields.summary, getattr(issue.fields, summing)))
+                                if hasattr(issue.fields, summing) and (getattr(issue.fields, summing)):
+                                    sum += float("%s" % getattr(issue.fields, summing))
+                                    dataline[idx] += float("%s" % getattr(issue.fields, summing))
+                            else:
+                                log.info("%s: %s" % (issue.key, issue.fields.summary))
+                                sum += 1
+                                dataline[idx] += 1
+    data_table+=("%s\t%s\n" % (date.strftime("%Y-%m-%d"), '\t'.join(str(e) for e in dataline)))
     log.info("%s\t%d" % (date.strftime("%Y-%m-%d"), sum))
     date += datetime.timedelta(delta)
 plot = re.sub(r"DATA","%s" % data_table, plot)
+plot = re.sub(r"PLOTLINE","%s" % plotline, plot)
 gnuplot(plot)
 
