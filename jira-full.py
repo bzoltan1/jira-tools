@@ -149,7 +149,10 @@ summing = jira_conf['summing']['field']
 
 if 'date' in jira_conf:
     start = jira_conf['date']['start']
-    stop = jira_conf['date']['stop']
+    if 'stop' in  jira_conf['date']:
+        stop = jira_conf['date']['stop']
+    else:
+        stop=datetime.datetime.now().strftime("%Y/%m/%d")
     delta = jira_conf['date']['delta']
 else:
     start = stop = datetime.datetime.now().strftime("%Y/%m/%d")
@@ -160,6 +163,7 @@ end_date = datetime.datetime.strptime('%s' % stop, '%Y/%m/%d')
 
 plot = re.sub(r"BURNDOWN","%s" % filter_title, plot)
 plot = re.sub(r"PNG","%s_%s-%s.png" % (re.sub(" ","_",filter_title), re.sub("/","-",start),re.sub("/","-",stop)), plot)
+plotfile = "%s_%s-%s.plot" % (re.sub(" ","_",filter_title), re.sub("/","-",start),re.sub("/","-",stop))
 
 dataline=[0 for x in range(len(jql_commands))]
 plot = re.sub(r"HEADER","0\t%s" % '\t'.join(str(e) for e in dataline) , plot)
@@ -213,5 +217,9 @@ while date <= end_date:
     date += datetime.timedelta(delta)
 plot = re.sub(r"DATA","%s" % data_table, plot)
 plot = re.sub(r"PLOTLINE","%s" % plotline, plot)
+
 gnuplot(plot)
 
+file = open(plotfile,"w") 
+file.write(plot) 
+file.close() 
