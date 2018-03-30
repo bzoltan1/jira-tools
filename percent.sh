@@ -14,6 +14,9 @@
 # 
 # the script will look up the title in the yaml file and print 13.27%
 
+RESULT="\e[34mEpic,Status (%),Ready by\e[0m"
+NEWLINE='\n'
+DELIMITER=','
 for f in $*
 do 
     # Get the feature from the yaml file
@@ -40,5 +43,7 @@ do
     else
         PROJECTION_DATE="Unknown"
     fi
-    echo -e $ISSUE ':\t' $PERCENT '%\tReady by: ' $PROJECTION_DATE 
+    RESULT=$RESULT$NEWLINE$ISSUE$DELIMITER$PERCENT$DELIMITER$PROJECTION_DATE
+    #echo -e $ISSUE ':,' $PERCENT '%,' $PROJECTION_DATE 
 done
+echo -e $RESULT|column -s ',' -t
