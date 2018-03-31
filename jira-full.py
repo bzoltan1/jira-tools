@@ -172,8 +172,21 @@ projects = jira.projects()
 date = start_date
 data_table=""
 plotline="plot "
+label_position = [["+0"],
+                 ["+0", "+0.24"],
+                 ["-0.1", "+0.1", "+0.3"],
+                 ["-0.16", "+0.00i", "+0.16", "+0.32"],
+                 ["-0.23", "-0.08", "+0.07", "+0.23", "+0.38"],
+                 ["-0.26", "-0.13", "+0.00", "+0.13", "+0.26", "+0.39"], 
+                 ["-0.27", "-0.16", "-0.05", "+0.06", "+0.17", "+0.28", "+0.39"],
+                 ["-0.30", "-0.19", "-0.10", "+0.00", "+0.11", "+0.21", "+0.30", "+0.40"]]
+
+if len(jql_commands) > 8:
+    print("Do not use more than 8 jql or add the label positioning data to the label_position array")
+    sys.exit(1)
+
 for idx,commands in enumerate(jql_commands):
-    plotline+=("\\\n\t$dataset  using %d:xtic(1) with histogram, \\\n\t$dataset using 0:($%d):%d with labels offset %d,1" % (idx+2,idx+2,idx+2,idx*5))
+    plotline+=("\\\n\t$dataset  using %d:xtic(1) with histogram, \\\n\t$dataset using ($0%s):($%d+5):(stringcolumn(%d)) w labels" % (idx+2, label_position[len(jql_commands)-1][idx],idx+2,idx+2))
     if (idx != len(jql_commands)-1):
         plotline+=(",") 
 
