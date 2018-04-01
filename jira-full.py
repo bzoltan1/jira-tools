@@ -85,36 +85,28 @@ def connect_jira(log, server):
         log.error("Failed to connect to JIRA: %s" % e)
         return None
 
-
 epilog_text = "CREDENTIAL_FILE:\n" + \
               "  In case the tool is used in a scripted mode the JIRA address and credentals can be used form the jira_conf.yaml file\n"
-
 log = logging.getLogger(__name__)
-
 parser = argparse.ArgumentParser(description="JIRA helper tool",
                                  epilog=epilog_text,
                                  formatter_class=RawTextHelpFormatter)
-
 parser.add_argument('-a',
                     '--address',
                     action="store",
                     default="https://jira.atlassian.com",
                     type=check_jira_address)
-
 parser.add_argument('-u',
                     '--user_name',
                     action="store",
                     default="")
-
 parser.add_argument('-p',
                     '--password',
                     action='store',
                     default='')
-
 parser.add_argument('--jql',
                     dest='store',
                     action='store_true')
-
 parser.add_argument('-c',
                     '--jira_conf_file',
                     dest='jira_conf_file',
@@ -126,27 +118,19 @@ parser.add_argument('-v',
                     dest='verbose',
                     default=False,
                     action='store_true')
-
 options = parser.parse_args()
-
-
 if options.verbose:
     logging.basicConfig(level=logging.INFO)
 else:
     logging.basicConfig(level=logging.WARNING)
-
-
 jira = connect_jira(log, jira_conf['server'])
-
 sum = 0
-
 jql_commands = jira_conf['jql_commands']
 filter_name = jira_conf['filter']['filter_name']
 filter_value = jira_conf['filter']['filter_value']
 filter_names = filter_name.split(".")
 filter_title = jira_conf['filter']['filter_title']
 summing = jira_conf['summing']['field']
-
 if 'date' in jira_conf:
     start = jira_conf['date']['start']
     if 'stop' in  jira_conf['date']:
@@ -157,17 +141,13 @@ if 'date' in jira_conf:
 else:
     start = stop = datetime.datetime.now().strftime("%Y/%m/%d")
     delta = 1
-
 start_date = datetime.datetime.strptime('%s' % start, '%Y/%m/%d')
 end_date = datetime.datetime.strptime('%s' % stop, '%Y/%m/%d')
-
 plot = re.sub(r"BURNDOWN","%s" % filter_title, plot)
 plot = re.sub(r"PNG","%s_%s-%s.png" % (re.sub(" ","_",filter_title), re.sub("/","-",start),re.sub("/","-",stop)), plot)
 plotfile = "%s_%s-%s.plot" % (re.sub(" ","_",filter_title), re.sub("/","-",start),re.sub("/","-",stop))
-
 dataline=[0 for x in range(len(jql_commands))]
 plot = re.sub(r"HEADER","0\t%s" % '\t'.join(str(e) for e in dataline) , plot)
-
 projects = jira.projects()
 date = start_date
 data_table=""
@@ -186,11 +166,11 @@ if len(jql_commands) > 8:
     sys.exit(1)
 
 for idx,commands in enumerate(jql_commands):
-    plotline+=("\\\n\t$dataset  using %d:xtic(1) with histogram, \\\n\t$dataset using ($0%s):($%d+5):(stringcolumn(%d)) w labels" % (idx+2, label_position[len(jql_commands)-1][idx],idx+2,idx+2))
+    plotline+=("\\\n\t$dataset  using %d:xtic(1) with histogram, \\\n\t$dataset using ($0%s):($%d):(stringcolumn(%d)) w labels offset 0,1" % (idx+2, label_position[len(jql_commands)-1][idx],idx+2,idx+2))
     if (idx != len(jql_commands)-1):
         plotline+=(",") 
 
-while date <= end_date:
+while (date <= end_date):
     dataline=[0 for x in range(len(jql_commands))]
     sum=0
     for project in projects:
@@ -227,12 +207,16 @@ while date <= end_date:
                                 dataline[idx] += 1
     data_table+=("%s\t%s\n" % (date.strftime("%Y-%m-%d"), '\t'.join(str(e) for e in dataline)))
     log.info("%s\t%d" % (date.strftime("%Y-%m-%d"), sum))
-    date += datetime.timedelta(delta)
+    if date < end_date:
+        if ((date + datetime.timedelta(delta)) > end_date):
+            date = end_date;
+        else:
+           date += datetime.timedelta(delta)
+    else:
+       break
 plot = re.sub(r"DATA","%s" % data_table, plot)
 plot = re.sub(r"PLOTLINE","%s" % plotline, plot)
-
 gnuplot(plot)
-
 file = open(plotfile,"w") 
 file.write(plot) 
 file.close() 

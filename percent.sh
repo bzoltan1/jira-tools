@@ -44,6 +44,5 @@ do
         PROJECTION_DATE="Unknown"
     fi
     RESULT=$RESULT$NEWLINE$ISSUE$DELIMITER$PERCENT$DELIMITER$PROJECTION_DATE
-    #echo -e $ISSUE ':,' $PERCENT '%,' $PROJECTION_DATE 
 done
-echo -e $RESULT|column -s ',' -t
+echo -e $RESULT
