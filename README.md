@@ -2,6 +2,14 @@
 
 The goal of this project is to provide CLI tools to access JIRA via REST API and do calculations, estimations and projections based on the data retrieved.
 
+## Requirements
+
+* GNU/Linux
+* Python 2.7+
+* gnuplot
+* Python library for interacting with JIRA via REST APIs - https://github.com/pycontribs/jira
+* YAML parser and emitter for Python (python-yaml package or PyYAML from pip )
+
 ## 1) Main tool
     jira-tool.py -c [configuration file] [-v]
 
@@ -48,7 +56,7 @@ The tool creates a .plot file with the result data. This plot file can be manual
 ## 2) Wrapper tool
     status-and-projection.sh [YAML FILES]
 
-A bash script what wraps around the jira\_tool.py and calculates the readiness and projected delivery date of the epics.
+A bash script what wraps around the jira-tool.py and calculates the readiness and projected delivery date of the epics.
 This tool is usable when the there are several yaml files each for a different JIRA epic and where the jql commands in the yaml files return are done/open.
 For example:
 
@@ -60,4 +68,4 @@ For example:
 ## 3) HTML page creator
     create-html-status.sh [YAML FILES]
 
-Very basic bash script to produce a Status.html file to visualize all the data the wrapper tool and the jira\_tool.py creates.
+Very basic bash script to produce a Status.html file to visualize all the data the wrapper tool and the jira-tool.py creates.
