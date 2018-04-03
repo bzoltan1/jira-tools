@@ -41,7 +41,7 @@ cat >> $HTML_FILE << TABLE_HEAD
 <tr><th>Epic</th><th>Status (%)</th><th>Ready by</th></tr>
 TABLE_HEAD
 
-./status.sh $*| egrep -v Epic|sed 's/^/<tr><td>/g'|sed 's/$/<\/td><\/tr>/g'|sed 's/,/<\/td><td>/g' >> $HTML_FILE
+./status-and-projection.sh $*| egrep -v Epic|sed 's/^/<tr><td>/g'|sed 's/$/<\/td><\/tr>/g'|sed 's/,/<\/td><td>/g' >> $HTML_FILE
 
 cat >> $HTML_FILE << TABLE_FOOT
 </table>
