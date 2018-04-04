@@ -7,6 +7,7 @@ The goal of this project is to provide CLI tools to access JIRA via REST API and
 * GNU/Linux
 * Python 2.7+
 * gnuplot
+* bc
 * Python library for interacting with JIRA via REST APIs - https://github.com/pycontribs/jira
 * YAML parser and emitter for Python (python-yaml package or PyYAML from pip )
 

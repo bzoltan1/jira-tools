@@ -3,11 +3,8 @@
 # HTML format status report generator script
 #
 
+rm -rf *.png *.plot Status.html
 HTML_FILE="Status.html"
-if [ -e $HTML_FILE ]
-        then echo "$HTML_FILE already exists, please remove it and rerun this script"
-        exit
-fi
 
 cat >> $HTML_FILE <<HEAD
 <!DOCTYPE HTML>
