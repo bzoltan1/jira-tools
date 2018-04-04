@@ -211,7 +211,8 @@ while (date <= end_date):
         if hasattr(project, filter_names[0]):
             project_category = getattr(project, filter_names[0])
             if len(filter_names) > 1:
-                project_category_value = project_category._session[filter_names[1]]
+                project_category_value = \
+                    project_category._session[filter_names[1]]
             else:
                 project_category_value = getattr(project, filter_names[0])
 
@@ -237,14 +238,21 @@ while (date <= end_date):
                                                           issue.fields.summary,
                                                           getattr(issue.fields,
                                                                   summing)))
-                                if hasattr(issue.fields, summing) and (getattr(issue.fields, summing)):
-                                    sum += float("%s" % getattr(issue.fields, summing))
-                                    dataline[idx] += float("%s" % getattr(issue.fields, summing))
+                                if hasattr(issue.fields, summing) and \
+                                   (getattr(issue.fields, summing)):
+                                        sum += float("%s" %
+                                                     getattr(issue.fields,
+                                                             summing))
+                                        dataline[idx] += \
+                                            float("%s" % getattr(issue.fields,
+                                                                 summing))
                             else:
-                                log.info("%s: %s" % (issue.key, issue.fields.summary))
+                                log.info("%s: %s" % (issue.key,
+                                                     issue.fields.summary))
                                 sum += 1
                                 dataline[idx] += 1
-    data_table += ("%s\t%s\n" % (date.strftime("%Y-%m-%d"), '\t'.join(str(e) for e in dataline)))
+    data_table += ("%s\t%s\n" % (date.strftime("%Y-%m-%d"),
+                                 '\t'.join(str(e) for e in dataline)))
     log.info("%s\t%d" % (date.strftime("%Y-%m-%d"), sum))
     if date < end_date:
         if ((date + datetime.timedelta(delta)) > end_date):
