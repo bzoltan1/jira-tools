@@ -22,7 +22,7 @@ do
     # Get the feature from the yaml file
     ISSUE=$(grep filter_title $f|sed -e "s/    filter_title: //"|xargs)
     # Run the JIRA tool with the yaml file
-    ./jira-tool.py -c $f 
+    ./jira-tool.py -c $f || exit 1 
     # Get the last value of the table. This is the latest status.
     STATUS=$(egrep "^[0-9]{4,}" ${ISSUE// /_}*plot|tail -1)
     # Get the date where the project was started

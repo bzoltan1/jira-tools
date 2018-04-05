@@ -30,6 +30,8 @@ import subprocess
 import os
 import re
 
+from urllib2 import Request, urlopen, URLError
+
 plot = """
 set title "BURNDOWN"
 set xtics nomirror rotate by -45
@@ -83,14 +85,21 @@ def check_valid_yaml_file(value):
 
 # function to check if JIRA address is valid
 def check_jira_address(value):
+    request = urllib2.Request(value)
     try:
-        urllib2.urlopen(value)
-    except urllib2.HTTPError, e:
-        raise argparse.ArgumentTypeError("HTTP Error: %s" % e.code)
-    except urllib2.URLError, e:
-        raise argparse.ArgumentTypeError("URL Error: %s" % e.args)
-    log.info("Valid JIRA server: %s" % value)
-    return value
+        urllib2.urlopen(request) 
+    except URLError, e:
+        if hasattr(e, 'reason'):
+            log.info("Failed to reach the %s server " % value + \
+                     "Reason: %s" % e.reason)
+            return False
+        elif hasattr(e, 'code'):
+            log.info("The %s could not fulfill the request. " % value + \
+                     "Error code: %s" % e.code)
+            return False
+    else:
+        log.info("Valid JIRA server: %s" % value)
+    return True
 
 
 # function to connect JIRA
@@ -102,7 +111,7 @@ def connect_jira(log, server):
                                                       server['password']))
         return jira
     except Exception, e:
-        log.error("Failed to connect to JIRA: %s" % e)
+        log.info("Failed to connect to JIRA: %s" % e)
         return None
 
 
@@ -146,7 +155,14 @@ if options.verbose:
     logging.basicConfig(level=logging.INFO)
 else:
     logging.basicConfig(level=logging.WARNING)
+
+if not check_jira_address(jira_conf['server']['address']):
+    sys.exit(1)
+
 jira = connect_jira(log, jira_conf['server'])
+if jira == None:
+    sys.exit(1)
+
 sum = 0
 jql_commands = jira_conf['jql_commands']
 filter_name = jira_conf['filter']['filter_name']
