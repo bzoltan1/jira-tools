@@ -53,7 +53,7 @@ cat >> $HTML_FILE << TABLE_FOOT
 </p>
 TABLE_FOOT
 
-FILES=$(ls *.yaml 2>/dev/null | sort -V)
+FILES=$(ls *.png 2>/dev/null | sort -V)
 for IMAGE_FILE in $FILES;
 do 
 cat >> $HTML_FILE <<HTML
