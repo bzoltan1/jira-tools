@@ -32,10 +32,12 @@ th {
 </head>
 <body class="wrap wider">
 HEAD
+DATE=`date '+%Y-%m-%d %H:%M:%S'`
 
 cat >> $HTML_FILE << TABLE_HEAD
 <p>
 <table>
+<tr><th>$DATE</th><th></th><th></th></tr>
 <tr><th>Epic</th><th>Status (%)</th><th>Ready by</th></tr>
 TABLE_HEAD
 
