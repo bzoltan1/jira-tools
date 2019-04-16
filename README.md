@@ -1,4 +1,5 @@
-# JIRA data mining and processing tool
+# JIRA data mining and processing tool 
+
 
 The goal of this project is to provide CLI tools to access JIRA via REST API and do calculations, estimations and projections based on the data retrieved.
 
